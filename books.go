@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
+
+	"github.com/go-co-op/gocron"
 
 	"github.com/gocolly/colly"
 )
@@ -14,8 +17,9 @@ type Book struct {
 	Price string
 }
 
-func main() {
+func BookScraper() {
 	// scraping done here
+	fmt.Println("Start scraping...!")
 
 	// save scraped data to CSV file
 	file, err := os.Create("books.csv")
@@ -34,17 +38,15 @@ func main() {
 	headers := []string{"Title", "Price"}
 	writer.Write(headers)
 
-
 	// The Collector makes HTTP requests and traverses HTML pages.
 	c := colly.NewCollector(
 		colly.AllowedDomains("books.toscrape.com"),
 	)
-
 	// var books []book
 	// execute when matching selectors are found
-	c.OnHTML("title", func(h *colly.HTMLElement){
-		fmt.Println(h.Text)
-	})
+	// c.OnHTML("title", func(h *colly.HTMLElement){
+	// 	fmt.Println(h.Text)
+	// })
 
 	// extract book titles and prices
 	c.OnHTML(".product_pod", func(h *colly.HTMLElement){
@@ -88,7 +90,12 @@ func main() {
 	// start the scraper
 	c.Visit("https://books.toscrape.com/")
 
-
 	fmt.Println("Done!")
+}
+func main() {
+	// schedule web scraper
+	my_scheduler := gocron.NewScheduler(time.UTC)
+	my_scheduler.Every(2).Minute().Do(BookScraper)
+	my_scheduler.StartBlocking()
 }
 
