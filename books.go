@@ -18,13 +18,11 @@ type Book struct {
 }
 
 func BookScraper() {
-	// scraping done here
-	fmt.Println("Start scraping...!")
-
-	// save scraped data to CSV file
-	file, err := os.Create("books.csv")
+	// file creation: save scraped data to CSV file
+	file_name := "books.csv"
+	file, err := os.Create(file_name)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not create file, error: %q", err)
 	}
 
 	// delay closing the file until program completes its cycle
@@ -32,11 +30,16 @@ func BookScraper() {
 
 	// create a CSV writer
 	writer := csv.NewWriter(file)
+
+	// throw everything from buffer to the writer
 	defer writer.Flush()
 
 	// write headers
 	headers := []string{"Title", "Price"}
 	writer.Write(headers)
+
+	// scraping done here
+	fmt.Println("Start scraping...!")
 
 	// The Collector makes HTTP requests and traverses HTML pages.
 	c := colly.NewCollector(
